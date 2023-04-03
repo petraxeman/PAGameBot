@@ -1,6 +1,5 @@
-game:
-  name: "Cataclysm: Dark Days Ahead"
-  replays:
-    start-record: "l"
-    end-record: None
+name: "Cataclysm: Dark Days Ahead"
+replays:
+  start-record: "l"
+  end-record: None
   

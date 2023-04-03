@@ -1,9 +1,10 @@
 # Импорты
 import os, yaml
 import core.datatypes as cored
+import core.ui as coreui
 
 # Глобальные переменные
-games: dict = {}
+games: 'cored.GamesList' = cored.GamesList()
 
 
 
@@ -13,16 +14,14 @@ def init_games() -> None:
         if os.path.isdir(element) and element != 'TemplateGame':
             for e in os.listdir(f'./{element}/'):
                 if e == 'game-settings.yaml':
-                    games[element] = parse_game_settings(f'./{element}/game-settings.yaml')
-
-
-def parse_game_settings(path: str) -> 'cored.Settings':
-    return cored.Settings(yaml.safe_load(open(path, 'r', encoding='utf8')))
+                    game_settings = cored.Settings(yaml.safe_load(open(f'./{element}/game-settings.yaml', 'r', encoding='utf8')))
+                    games.add_game(element, game_settings)
 
 
 def main() -> None:
     init_games()
+    print(games)
+    coreui.start_ui(games)
 
 if __name__ == '__main__':
     main()
-    print(games)
