@@ -2,3 +2,9 @@ name: "Template"      # Название игры которое будет от
 replays:
   start-record: "l"     # Клавиша для начала записи реплея
   end-record: None      # Клавиша для окончания записи реплея (если None то таже что и для начала)
+  resolution: 
+    type: custom
+    fact: 1x1
+  format:
+    black_and_white: True
+    opencv_lines: True

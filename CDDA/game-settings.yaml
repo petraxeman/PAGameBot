@@ -1,4 +1,7 @@
 name: "Cataclysm: Dark Days Ahead"
+resolution: 
+  type: custom
+  fact: 1x1
 replays:
   start-record: "l"
   end-record: None

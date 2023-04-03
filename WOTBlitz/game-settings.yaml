@@ -1,4 +1,7 @@
 name: "WOT Blitz"      # Название игры которое будет отображаться в интерфейсе
+resolution: 
+  type: custom
+  fact: 1x1
 replays:
   start-record: "l"     # Клавиша для начала записи реплея
   end-record: None      # Клавиша для окончания записи реплея (если None то таже что и для начала)

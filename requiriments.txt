@@ -1,2 +1,4 @@
 asciimatics
 pyyaml
+pillow
+opencv-contrib-python
