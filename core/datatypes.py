@@ -26,6 +26,12 @@ class GamesList:
                 if self.dict[sn].name == full_name:
                     self.current = self.dict[sn]
                     break
+    
+    def get_short_name(self, full_name: str) -> str:
+        for short_name in self.dict:
+            if self.dict[short_name].name == full_name:
+                return short_name
+        raise Exception(f'Not found {repr(full_name)}')
 
     def add_game(self, short_name: str, settings: 'Settings') -> None:
         self.dict[short_name] = settings

@@ -4,6 +4,7 @@ from asciimatics.scene import Scene
 from asciimatics.widgets import Frame, ListBox, Layout, Divider, Text, Button, TextBox, Widget
 from asciimatics.exceptions import ResizeScreenError, NextScene, StopApplication
 from time import sleep
+from core import utils
 import sys
 
 # Глобальные переменные
@@ -64,7 +65,7 @@ class GameManager(Frame):
 
         self._select_button = Button('Select', self._select)
         layout = Layout([100], fill_frame=True)
-        layout2 = Layout([1, 1, 1])
+        layout2 = Layout([1, 1, 1, 1])
 
         self.add_layout(layout)
         layout.add_widget(self.list_view)
@@ -72,12 +73,14 @@ class GameManager(Frame):
 
         self.add_layout(layout2)
         layout2.add_widget(Button('Create new', self._create_new), 0)
-        layout2.add_widget(self._select_button, 1)
-        layout2.add_widget(Button('Back', self._back), 2)
+        layout2.add_widget(Button('Clone', self._clone), 1)
+        layout2.add_widget(self._select_button, 2)
+        layout2.add_widget(Button('Back', self._back), 3)
         
         self.fix()
     
     def _reload_list(self, new_value = None):
+        self.games_list = utils.init_games()
         self.list_view.options = self.games_list.get_summary()
         self.list_view.value = new_value
     
@@ -93,6 +96,10 @@ class GameManager(Frame):
         self.games_list.set_current(None)
         raise NextScene("GameView")
     
+    def _clone(self,):
+        utils.clone(self.games_list.get_short_name(self.list_view.options[self.list_view.value][0]))
+        self._reload_list()
+
     def _back(self,):
         raise NextScene('MainMenu')
 
@@ -145,7 +152,8 @@ class GameView(Frame):
         self.end_record_button.value = self.current.fact_end_record
     
     def _delete(self,) -> None:
-        pass
+        utils.delete(self.games_list.get_short_name(self.name_field.value))
+        raise NextScene("GameManager")
     
     def _save(self,) -> None:
         raise NextScene("GameManager")
