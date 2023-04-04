@@ -23,7 +23,6 @@ class Settings:
         self.blur = int(self.blur) if self.blur != 'None' else None
 
     def build_resolution(self, string: str) -> tuple:
-        print(string)
         x, y = string.split('x')
         return (int(x), int(y))
     

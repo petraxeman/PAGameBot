@@ -21,7 +21,8 @@ class MainMenu(Frame):
                     hover_focus=True,
                     can_scroll=False,
                     title='Main menu')
-        
+        #conf_palette(self)
+
         layout = Layout([100], fill_frame = True)
         self.add_layout(layout)
         layout.add_widget(Button("Game manager", self._game_manager_callback), 0)
@@ -52,7 +53,8 @@ class GameManager(Frame):
                          hover_focus=True,
                          can_scroll=False,
                          title='Game manager')
-        
+        #conf_palette(self)
+
         self.games_list = games_list
 
         self.list_view = ListBox(
@@ -150,7 +152,8 @@ class GameView(Frame):
 
         layout_2l.add_widget(self.start_record, 0)
         layout_2l.add_widget(self.end_record, 1)
-        layout_2l.add_widget(Divider())
+        layout_2l.add_widget(Divider(), 0)
+        layout_2l.add_widget(Divider(), 1)
 
         layout_3l.add_widget(Label('Replay settings', height=2))
         layout_3l.add_widget(self.resolution_type)
@@ -162,7 +165,9 @@ class GameView(Frame):
 
         layout_el.add_widget(self.delete_button, 0)
         layout_el.add_widget(Button('Start Record', self._start_record), 2)
+        layout_el.add_widget(Button('Start Player', self._start_player), 2)
         layout_el.add_widget(Button('Save', self._save), 3)
+        layout_el.add_widget(Button('Filter current', self._filter_current), 3)
         layout_el.add_widget(Button('Back', self._back), 4)
         
         self.fix()
@@ -224,10 +229,14 @@ class GameView(Frame):
         raise NextScene("GameManager")
     
     def _start_record(self) -> None:
-        asyncio.run(self.start_record_async())
+        os.system(f"start cmd /k python record_server.py \"{self.current.folder_name}\"")
+        #asyncio.run(self.start_record_async())
+    
+    def _start_player(self) -> None:
+        pass
 
     async def start_record_async(self) -> None:
-        os.system(f"start cmd /k python record_server.py {self.current.folder_name}")
+        pass
 
     def _save(self,) -> None:
         if self.folder_name.value in os.listdir('./') and self.is_new:
@@ -254,9 +263,20 @@ class GameView(Frame):
 
         raise NextScene("GameManager")
 
+    def _filter_current(self) -> None:
+        pass
+
     def _back(self,) -> None:
         raise NextScene("GameManager")
 
+
+def conf_palette(frame: 'Frame') -> None:
+    frame.palette['background'] = (7, Screen.A_NORMAL, Screen.COLOUR_CYAN)
+    frame.palette['borders'] = (7, Screen.A_NORMAL, Screen.COLOUR_CYAN)
+    frame.palette['button'] = (7, Screen.A_NORMAL, Screen.COLOUR_CYAN)
+    frame.palette['control'] = (7, Screen.A_NORMAL, Screen.COLOUR_CYAN)
+    frame.palette['label'] = (7, Screen.A_NORMAL, Screen.COLOUR_CYAN)
+    frame.palette['title'] = (7, Screen.A_NORMAL, Screen.COLOUR_CYAN)
 
 def start_ui(games_list):
     last_scene = None

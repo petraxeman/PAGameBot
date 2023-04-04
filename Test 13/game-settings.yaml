@@ -7,6 +7,6 @@ replays:
     opencv_blur: '7'
     opencv_threshold: '120'
   resolution:
-    fact: 20x9
-    type: custom
+    fact: 16x9
+    type: 16x9
   start-record: l
