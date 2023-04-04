@@ -1,0 +1,12 @@
+keys: w,a,s,d,shift,mouse
+name: Test Game
+replays:
+  end-record: None
+  formating:
+    filtering: true
+    opencv_blur: '7'
+    opencv_threshold: '120'
+  resolution:
+    fact: 20x9
+    type: custom
+  start-record: l
