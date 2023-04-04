@@ -6,7 +6,7 @@ from asciimatics.widgets import Frame, ListBox, Layout, Divider, Text, Button, \
 from asciimatics.exceptions import ResizeScreenError, NextScene, StopApplication
 from time import sleep
 from core import utils, datatypes
-import sys, os
+import sys, os, asyncio
 
 # Глобальные переменные
 #
@@ -26,7 +26,7 @@ class MainMenu(Frame):
         self.add_layout(layout)
         layout.add_widget(Button("Game manager", self._game_manager_callback), 0)
         layout.add_widget(Button("Filter replays", self._filtering_replace_callback), 0)
-        layout.add_widget(Button("Start record server", self._start_record_server_callback), 0)
+        layout.add_widget(Button('Download binaries', self._download_binaries_callback), 0)
         layout.add_widget(Button('Quit', self._quit), 0)
         self.fix()
     
@@ -36,7 +36,7 @@ class MainMenu(Frame):
     def _filtering_replace_callback(self) -> None:
         pass
 
-    def _start_record_server_callback(self) -> None:
+    def  _download_binaries_callback(self) -> None:
         pass
     
     def _quit(self) -> None:
@@ -121,7 +121,7 @@ class GameView(Frame):
         layout_1l = Layout([100])
         layout_2l = Layout([1, 1])
         layout_3l = Layout([100])
-        layout_el = Layout([1, 1, 1, 1], fill_frame=True)
+        layout_el = Layout([1, 1, 1, 1, 1], fill_frame=True)
 
         self.folder_name = Text("Folder name:", "folder_name")
         self.name_field = Text('Name:', 'name')
@@ -161,8 +161,9 @@ class GameView(Frame):
         layout_3l.add_widget(Divider())
 
         layout_el.add_widget(self.delete_button, 0)
-        layout_el.add_widget(Button('Save', self._save), 2)
-        layout_el.add_widget(Button('Back', self._back), 3)
+        layout_el.add_widget(Button('Start Record', self._start_record), 2)
+        layout_el.add_widget(Button('Save', self._save), 3)
+        layout_el.add_widget(Button('Back', self._back), 4)
         
         self.fix()
     
@@ -222,6 +223,12 @@ class GameView(Frame):
         utils.delete(self.games_list.get_short_name(self.name_field.value))
         raise NextScene("GameManager")
     
+    def _start_record(self) -> None:
+        asyncio.run(self.start_record_async())
+
+    async def start_record_async(self) -> None:
+        os.system(f"start cmd /k python record_server.py {self.current.folder_name}")
+
     def _save(self,) -> None:
         if self.folder_name.value in os.listdir('./') and self.is_new:
             return
@@ -250,7 +257,7 @@ class GameView(Frame):
     def _back(self,) -> None:
         raise NextScene("GameManager")
 
-    
+
 def start_ui(games_list):
     last_scene = None
     with ManagedScreen() as screen:
