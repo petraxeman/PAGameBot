@@ -2,3 +2,4 @@ asciimatics
 pyyaml
 opencv-contrib-python
 pynput
+mss

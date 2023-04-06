@@ -1,10 +1,10 @@
-keys: w,a,s,d
+keys: w,a,s,d,shift,ctrl
 name: WOT Blitz Mauschen
 replays:
   end-record: None
   formating:
     filtering: true
-    opencv_blur: '7'
+    opencv_blur: '3'
     opencv_threshold: '120'
   resolution:
     fact: 16x9
