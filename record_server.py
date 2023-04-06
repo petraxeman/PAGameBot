@@ -156,12 +156,12 @@ def record(folder: str) -> None:
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     output = cv2.VideoWriter(f'{path_to_replay}/video.mp4', fourcc, 20.0, (resolution[0], resolution[1]))
 
-    #for element in os.listdir(path_to_replay):
-    #    filename, ext = element.split('.')
-    #    if ext == 'jpg':
-    #        frame = cv2.imread(f'{path_to_replay}/{element}')
-    #        output.write(frame)
-    #output.release()
+    for element in os.listdir(path_to_replay):
+        filename, ext = element.split('.')
+        if ext == 'png':
+            frame = cv2.imread(f'{path_to_replay}/{element}')
+            output.write(frame)
+    output.release()
 
     print(f'Replay saved at "{path_to_replay}')
     print(f'Frames count: {frame_id}')
