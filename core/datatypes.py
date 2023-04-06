@@ -1,67 +1,56 @@
-from dataclasses import dataclass
+from core import utils
 import os, yaml
 
 
 class Settings:
-    def __init__(self, data: dict) -> None:
-        self.folder_name = None
-        self.name = data['name']
-        self.keys = data['keys']
-        self.start_record = data['replays']['start-record']
-        self.fact_end_record = data['replays']['end-record']
-        self.end_record = self.fact_end_record if self.fact_end_record != "None" else self.start_record
+    def __init__(self, data: dict, folder: str) -> None:
+        # БАЗОВЫЕ ПАРАМЕТРЫ
+        self.folder_name: str          = folder
+        self.name: str                 = data['base']['name']
         
-        self.resolution_type = data['replays']['resolution']['type']
-        self.text_resolution = data['replays']['resolution']['fact']
-        self.resolution = self.build_resolution(self.text_resolution) if self.resolution_type == 'custom' \
-                                                                    else self.build_resolution(self.resolution_type)
+        # ПАРАМЕТРЫ РЕПЛЕЯ
+        self.start_record: str         = data['replays']['start-record']
+        self.end_record: str           = data['replays']['end-record']
+        self.text_end_record: str      = data['replays']['end-record']
+        self.decline_record: str       = data['replays']['decline-record']
+        self.listenig_keys: list[str]  = data['replays']['listening-keys'].split(',')
+        self.process_when_record: bool = bool(data['replays']['process-when-record'])
+        self.resolution_type: str      = data['replays']['resolution']['type']
+        self.resolution_fact: str      = data['replays']['resolution']['fact']
+        self.resolution_size: int      = int(data['replays']['resolution']['size'])
 
-        self.filtering = data['replays']['formating']['filtering']
-        self.threshold = data['replays']['formating']['opencv_threshold']
-        self.blur = data['replays']['formating']['opencv_blur']
-        self.threshold = int(self.threshold) if self.threshold != 'None' else None
-        self.blur = int(self.blur) if self.blur != 'None' else None
+        # ПАРАМЕТРЫ РЕДАКТИРОВАНИЯ ИЗОБРАЖЕНИЯ
+        self.algorithm: str            = data['image-editing']['algorithm']
 
-    def build_resolution(self, string: str) -> tuple:
-        x, y = string.split('x')
-        return (int(x), int(y))
+        self.contours_threshold: int   = int(data['image-editing']['contours']['threshold'])
+        self.contours_blur: int        = int(data['image-editing']['contours']['blur'])
+
+        self.canny_min_threshold: int  = int(data['image-editing']['canny']['min-threshold'])
+        self.canny_max_threshold: int  = int(data['image-editing']['canny']['max-threshold'])
+
+        self.fix_values()
+    
+    def fix_values(self) -> None:
+        self.end_record = self.end_record if self.end_record != "None" else self.start_record
+
+    def get_size(self) -> tuple[int]:
+        w, h = self.resolution_fact.split('x')
+        w, h = int(w), int(h)
+        step = self.resolution_size // (w + h) 
+        return step * w, step * h
     
     def build_yaml(self, file) -> None:
-        data = {'name' : self.name,
-                'keys' : self.keys,
-                'replays': {
-                    'start-record' : self.start_record,
-                    'end-record' : self.fact_end_record,
-                    'resolution' : {
-                        'type' : self.resolution_type,
-                        'fact' : self.text_resolution,
-                    },
-                    'formating' : {
-                        'filtering' : self.filtering,
-                        'opencv_threshold' : self.threshold,
-                        'opencv_blur' : self.blur
-                    }
-                }}
+        data = utils.build_dict_from_settings(self)
         yaml.safe_dump(data, file)
 
     def __repr__(self) -> str:
-        return f'<Setting for "{self.name}" {self.end_record}>'
+        return f'<Setting for "{self.name}">'
     
     @classmethod
-    def create_empty(cls):
-        data = {'name' : 'Undefined',
-                'keys' : 'w,a,s,d',
-                'replays': {
-                    'start-record' : 'l',
-                    'end-record' : 'None',
-                    'resolution' : {
-                        'type' : '16x9',
-                        'fact' : '16x9',},
-                    'formating' : {
-                        'filtering' : 'True',
-                        'opencv_threshold' : '120',
-                        'opencv_blur' : '7'}}}
-        return cls(data)
+    def create_empty(cls) -> 'Settings':
+        data = yaml.safe_load('./TemplateGame/game-settings.yaml')
+        data['base']['name'] = 'Untitled'
+        return cls(data, None)
 
 
 

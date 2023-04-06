@@ -119,13 +119,14 @@ def record_screen(path: str, frame_id: int) -> None:
     image = np.array(sct.grab(bounding_box))
     image = cv2.resize(image, resolution)
 
-    image = cv2.medianBlur(image, recording_game.blur)
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    ret, image = cv2.threshold(image, recording_game.threshold, 255, cv2.THRESH_BINARY)
+    image_contours = cv2.Canny(image, 100, 200)
+    #image = cv2.medianBlur(image, recording_game.blur)
+    #image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    #ret, image = cv2.threshold(image, recording_game.threshold, 255, cv2.THRESH_BINARY)
     
-    contours, hierarchy = cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    image_contours = np.uint8(np.zeros((image.shape[0],image.shape[1])))
-    cv2.drawContours(image_contours, contours, -1, (255,255,255), 1)
+    #contours, hierarchy = cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    #image_contours = np.uint8(np.zeros((image.shape[0],image.shape[1])))
+    #cv2.drawContours(image_contours, contours, -1, (255,255,255), 1)
     
     cv2.imwrite(f'{path}/Frame-{frame_id}.png', image_contours)
 
