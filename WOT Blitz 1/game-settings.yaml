@@ -1,12 +1,22 @@
-keys: w,a,s,d,shift,ctrl
-name: WOT Blitz Mauschen
+base:
+  name: "Template"                # Название игры которое будет отображаться в интерфейсе
+  model-version: 0 # TEMP
 replays:
-  end-record: None
-  formating:
-    filtering: true
-    opencv_blur: '3'
-    opencv_threshold: '120'
-  resolution:
-    fact: 16x9
-    type: 16x9
-  start-record: l
+  start-record: "l"              # Клавиша для начала записи реплея
+  end-record: None               # Клавиша для окончания записи реплея (если None то таже что и для начала)
+  decline-record: "k"            # Клавиша для отмены и удаления текущего реплея
+  listening-keys: w,a,s,d,shift  # Клавиши для отслеживания (Доступны все буквы и цифры, shift, ctrl, alt, cmd, tab, caps-lock)
+  process-when-record: False     # Применять обработку изображений во время записи
+  frame-rate: 15                 # Максимальное колличество кадров в секунду
+  resolution: 
+    type: 16x9                   # Позволяет устанавливать разрешение изображение в виде пресета (16x9, 4x3, custom)
+    fact: 16x9                   # Фактическоре разрешение конечного изображения
+    size: 1000                   # Размер изображения к которому применяется разрешение (600 -> 384x216 или 1000 = 640x360 при 16x9)
+image-editing:
+  algorithm: canny               # Может быть: contours, canny
+  contours:
+    threshold: 120               # Порог цвета для отсечения изображения (Только для contours)
+    blur: 7                      # Применять ли размытие к изображению и насколько (Только для contours)
+  canny:
+    min-threshold: 100           # Нижний порог интенсивности (Только для canny)
+    max-threshold: 200           # Верхний порог интенсивности (Только для canny)

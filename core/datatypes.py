@@ -13,8 +13,9 @@ class Settings:
         self.end_record: str           = data['replays']['end-record']
         self.text_end_record: str      = data['replays']['end-record']
         self.decline_record: str       = data['replays']['decline-record']
-        self.listenig_keys: list[str]  = data['replays']['listening-keys'].split(',')
+        self.listening_keys: list[str] = data['replays']['listening-keys'].split(',')
         self.process_when_record: bool = bool(data['replays']['process-when-record'])
+        self.framerate: int            = int(data['replays']['frame-rate'])
         self.resolution_type: str      = data['replays']['resolution']['type']
         self.resolution_fact: str      = data['replays']['resolution']['fact']
         self.resolution_size: int      = int(data['replays']['resolution']['size'])

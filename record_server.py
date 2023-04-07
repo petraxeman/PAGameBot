@@ -5,12 +5,13 @@ from pynput.mouse import Listener as MListener
 from pynput.mouse import Button
 from core import utils
 from datetime import datetime
-import sys, time, os, mss, cv2
+import sys, time, os, mss, cv2, shutil, dxcam
 import numpy as np
 
-bounding_box = {'top': 0, 'left': 0, 'width': 1920, 'height': 1080}
-sct = mss.mss()
-
+#bounding_box = {'top': 0, 'left': 0, 'width': 1920, 'height': 1080}
+#sct = mss.mss()
+previous_image = None
+camera = dxcam.create(device_idx=0, output_color='BGRA')
 
 keymap: dict = dict()
 key_specials: dict = {Key.alt: 'alt', Key.alt_gr: 'alt', Key.alt_l: 'alt', Key.alt_r: 'alt',
@@ -28,18 +29,23 @@ mouse_prev_pos: tuple = (0, 0)
 
 program_close = False
 recording = False
+delete_current_record = False
 
 
 
 def on_press(key: 'Key') -> None:
-    global keymap, program_close, recording
+    global keymap, program_close, recording, delete_current_record
     if 'char' in dir(key):
         if key.char in possible_keys:
             keymap[key.char] = True
-        if key.char == key_to_start and not recording:
-            recording = True
-        elif key.char == key_to_end and recording:
-            recording = False
+        if key.char in [key_to_start, key_to_end, key_to_decline]:
+            if key.char == key_to_start and not recording:
+                recording = True
+            elif key.char == key_to_end and recording:
+                recording = False
+            elif key.char == key_to_decline and recording:
+                recording = False
+                delete_current_record = True
     else:
         if key == Key.esc:
             program_close = True
@@ -116,24 +122,21 @@ def record_input(file, frame_id: int) -> None:
 
 
 def record_screen(path: str, frame_id: int) -> None:
-    image = np.array(sct.grab(bounding_box))
-    image = cv2.resize(image, resolution)
-
-    image_contours = cv2.Canny(image, 100, 200)
-    #image = cv2.medianBlur(image, recording_game.blur)
-    #image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    #ret, image = cv2.threshold(image, recording_game.threshold, 255, cv2.THRESH_BINARY)
-    
-    #contours, hierarchy = cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    #image_contours = np.uint8(np.zeros((image.shape[0],image.shape[1])))
-    #cv2.drawContours(image_contours, contours, -1, (255,255,255), 1)
-    
-    cv2.imwrite(f'{path}/Frame-{frame_id}.png', image_contours)
+    global camera, previous_image, resolution
+    image = camera.grab()
+    if image is not None:
+        image_to_write = image
+        previous_image = image
+    else:
+        image_to_write = previous_image
+    #image_to_write = np.array(image_to_write)
+    image_to_write = cv2.resize(image_to_write, resolution)
+    cv2.imwrite(f'{path}/Frame-{frame_id}.png', image_to_write)
 
 
 def record(folder: str) -> None:
-    global recording, keymap, mousemap
-    delay = 1/15
+    global recording, keymap, mousemap, camera
+    delay = 1 / recording_game.framerate
     frame_id = 0
 
     current_time = datetime.now()
@@ -146,6 +149,8 @@ def record(folder: str) -> None:
     
     print('Replay recording')
 
+    
+    start_time = datetime.now().timestamp()
     while recording:
         frame_id += 1
         on_move()
@@ -153,36 +158,38 @@ def record(folder: str) -> None:
         record_screen(path_to_replay, frame_id)
         end_input()
         time.sleep(delay)
-    
+    end_time = datetime.now().timestamp()
+
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    output = cv2.VideoWriter(f'{path_to_replay}/video.mp4', fourcc, 20.0, (resolution[0], resolution[1]))
-
-    for element in os.listdir(path_to_replay):
-        filename, ext = element.split('.')
-        if ext == 'png':
-            frame = cv2.imread(f'{path_to_replay}/{element}')
-            output.write(frame)
+    output = cv2.VideoWriter(f'{path_to_replay}/video.mp4', fourcc, 15.0, resolution)
+    for index in range(frame_id):
+        index += 1
+        frame = cv2.imread(f'{path_to_replay}/Frame-{index}.png')
+        output.write(frame)
     output.release()
-
-    print(f'Replay saved at "{path_to_replay}')
-    print(f'Frames count: {frame_id}')
     input_data.close()
+
+    if delete_current_record:
+        print("Replay declined!")
+        shutil.rmtree(path_to_replay)
+    else:
+        print(f'Replay saved at "{path_to_replay}')
+        print(f'Recorded: {round(end_time-start_time, 2)}s')
+        print(f'Frames count: {frame_id}')
+        print(f'Approximate frame rate: {round(frame_id / (end_time-start_time), 2)}')
 
 
 if __name__ == '__main__':
     path, folder = sys.argv
     games = utils.init_games()
     
-
     recording_game = games.dict[folder]
-    resolution = recording_game.resolution
-    n = 600 // sum(resolution)
-    resolution = (n * resolution[0], n * resolution[1])
+    resolution = recording_game.get_size()
 
-    key_to_start: str         = recording_game.start_record
-    key_to_end: str           = recording_game.end_record
-    keys_to_listen: list[str] = recording_game.keys.split(',')
-    build_keymap(keys_to_listen)
+    key_to_start: str   = recording_game.start_record
+    key_to_end: str     = recording_game.end_record
+    key_to_decline: str = recording_game.decline_record
+    build_keymap(recording_game.listening_keys)
 
     klistener: 'KListener'     = KListener(on_press=on_press, on_release=on_release)
     mlistener: 'MListener'     = MListener(on_click=on_click, on_scroll=on_scroll)

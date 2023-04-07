@@ -7,6 +7,7 @@ replays:
   decline-record: None           # Клавиша для отмены и удаления текущего реплея
   listening-keys: w,a,s,d,shift  # Клавиши для отслеживания (Доступны все буквы и цифры, shift, ctrl, alt, cmd, tab, caps-lock)
   process-when-record: False     # Применять обработку изображений во время записи
+  frame-rate: 15                 # Максимальное колличество кадров в секунду
   resolution: 
     type: 16x9                   # Позволяет устанавливать разрешение изображение в виде пресета (16x9, 4x3, custom)
     fact: 16x9                   # Фактическоре разрешение конечного изображения
@@ -14,8 +15,8 @@ replays:
 image-editing:
   algorithm: canny               # Может быть: contours, canny
   contours:
-    opencv-threshold: 120        # Порог цвета для отсечения изображения (Только для contours)
-    opencv-blur: 7               # Применять ли размытие к изображению и насколько (Только для contours)
+    threshold: 120               # Порог цвета для отсечения изображения (Только для contours)
+    blur: 7                      # Применять ли размытие к изображению и насколько (Только для contours)
   canny:
     min-threshold: 100           # Нижний порог интенсивности (Только для canny)
     max-threshold: 200           # Верхний порог интенсивности (Только для canny)
